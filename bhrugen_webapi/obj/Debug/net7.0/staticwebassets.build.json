@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "mrePIZlZM9om/of10gAg6d+WQQGmCLJqmWBUZ4XP2Hc=",
+  "Source": "bhrugen_webapi",
+  "BasePath": "_content/bhrugen_webapi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

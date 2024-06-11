@@ -1,0 +1,128 @@
+*creating project api 
+*show all files to show controller folder
+*create apiclass => right click on controller folder
+  add class and rename it with the end of Controller,
+  make the class inherite from (ControllerBase)
+*(ControllerBase)=>containing the common methods for returning 
+all the data and users that is related to the controller in .net application.
+*add the attribute [Route("api/controllername")] and [ApiController] before the class.
+_____________________________________________
+after creating the endpoint add the attribute Http Verb Befor it.
+______________________________________________________
+dto => wrapper between the database model and what is being exposed from the api
+_________________________________________________
+to define status code to the endpoint we use actionresult
+actionresult => is the implementation of interface IActionresult and 
+  with that we can use any return type that we want
+___________________________________________________
+to remove Undocumented from swagger use upper the endpoint
+[ProducesResponseType(StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+_________________________________________________________
+get with id => 
+check if the id is null or is zero => badrequest("error")
+check if the record that return from the database is null => notfound("notfound")
+_______________________________________________
+Post => 
+check if the model is null then badrequest(model)
+if i want to use =>CreatedatRoute then :
+1- give the getwithidEndPoint explicityName as [HttpGet("{id:int}",Name="GetVilla")]
+2- return CreatedatRoute("Getvilla",new{id=villadto.id},villadto);
+_______________________________________________________________
+Put =>
+check if the model is null or id !=dto.id then badrequest(model) 
+_______________________________________________________________
+delete enpoint we use IActionResult without the return type 
+check if the id is null or is zero => badrequest("error")
+check if the record that return from the database is null => notfound("notfound")
+__________________________________________________________________
+
+modelstate validation
+=>[Required] above the attribute of model
+and use the [ApiController] before the class.
+=>if you donot use [ApiController] then use in the endpoint
+if(!ModelState.IsValid)
+{return BadRequest(ModelState);}
+Custom validation =>مثلا هجيب الاسم من قاعدة البانات وهقارنة باللي هيدخل من خلال الموقع لو موجود هقولة انه موجود
+ModelState.AddModelError("CustomError","Villa already Exists");
+return BadRequest(ModelState);
+_________________________________________________________________
+
+____________________________________________________________
+To update only one attribute of atable 
+we use patch , to add patch to the project:
+1- from nuget(alt+7) install Microsoft.AspNetCore.JsonPatch
+ then install Microsoft.AspNetCore.Mvc.NewtonsoftJson
+then add to program.cs (builder.Services.AddControllers().AddNewtonsoftJson();)
+in the swagger fill the "op" with replace ,"value" with the new value ,"Path" with /attribute
+_____________________________________________________________
+logger => معناها اظهار الاخطاء في الكونسول
+______________________________________________________________
+add entityframework to the project from nuget package manager:
+1-install Microsoft.EntityFrameworkCore.SqlServer
+2-install Microsoft.EntityFrameworkCore.Tools
+_______________________________________________
+creating ApplicationDBContext.cs class and inherite from DBContext
+and create dbsets.
+create connection string .
+add dbsets to the database by migrations.
+_______________________________________________________
+to connect the application dbcontext with connection string 
+we need to add that to dependency injection in program.cs class
+builder.Services.AddDbContext<ApplicationDBContext>(option =>
+{
+    option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSqlConnection"));
+});
+then add connection string to dbcontext class by creating constructor as well by
+public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options):base(options)
+    {
+        
+    }
+_________________________________________________________
+create tables:
+1- first install (dotnet tool install --global dotnet-ef --version 7.0.7 ) from terminal
+2-right click on project name select entityframeworkcore then add migrations then ok
+3-right click on project name select entityframeworkcore then update-database then ok
+_____________________________________________________________
+seed data to the table =>
+1-create OnModelCreating function in the DBContext.cs Class 
+2-add migration and update-database
+__________________________________________________
+automapper=>بتساعدنا في تقليل اعداد المتغيرات في دالة الانشاء والتعديل 
+يجب ان تكون اسماء المتغيرات سواء في الموديل الاصلي او ال دي تي او نفس الاسم
+install =>nuget install automapper then creating class inherite from : Profile
+in the class constructor CreateMap<> function.
+then register the mapping in the program.cs then use in the controller.
+_____________________________________________________
+one to many relation
+one villa has many vilanumber the the foreignkey in the villanumber
+add the attribute : 
+    [ForeignKey("Villa")]
+    public int  VillaId { get; set; }
+    public Villa villa { get; set; }
+______________________________________________________
+security module 
+if a user tries to login and the login was successful we need to 
+send them the user details as well as the token that token 
+basically validates that ,hey,this is your identity and i'm 
+approving that you are an authenticated user this will be in (loginresponsedto)
+token => used to authenticate or validate the identity of that user.
+=========================================================================
+restore migration 
+Update-Database "20240505143030_modify villa table name"
+=========================================================================
+we can change the table name later in the application by:
+from application dbcontext we write OnModelCreating{ 
+base.OnModelCreating((modelBuilder));
+modelBuilder.Entity<Villa>().ToTable("villatest");
+}
+villatest is the new name of the table villa 
+=======================================================================
+Token
+1-we need secret key to generate the token
+2-using secret key the token will be encrypted
+3-using secret key to validate if the token is valid or not because any one can generate a token
+ add the secret key :
+in appsetting.json
+======================================================
